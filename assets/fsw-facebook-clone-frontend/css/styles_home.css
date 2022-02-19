@@ -1,0 +1,335 @@
+@import url("https://fonts.googleapis.com/css2?family=Ubuntu&display=swap");
+
+body {
+  all: unset;
+  font-family: Ubuntu, Arial, sans-serif;
+  background-color: #e5e5e5;
+}
+
+a {
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.navbar {
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+  margin: 0;
+  overflow: hidden;
+  background-color: #1877f2;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 10vh;
+  align-items: center;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.wrapper {
+  width: 2 0%;
+  max-width: 31.25rem;
+  margin-left: 1rem;
+}
+
+.searchbar {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+#searchinput {
+  width: 100%;
+  height: 2.5rem;
+  background: #f5f5f5;
+  outline: none;
+  border: none;
+  border-radius: 1.625rem;
+  padding: 0 3.5rem 0 1.5rem;
+  font-size: 1rem;
+}
+
+#searchsubmit {
+  all: unset;
+  width: 3.5rem;
+  height: 2.8rem;
+  margin-left: -3.5rem;
+  background: none;
+  border: none;
+  outline: none;
+}
+
+#searchsubmit:hover {
+  cursor: pointer;
+}
+
+.search-icon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.name-nav {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-left: auto;
+  margin-right: 1rem;
+  color: white;
+}
+
+.parent-container {
+  display: flex;
+  position: absolute;
+  top: 10vh;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+li a {
+  display: block;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  flex: 40%;
+  padding: 30px;
+  position: relative;
+  background-color: #ffff;
+}
+
+.second-column {
+  flex: 77%;
+  padding-left: 10%;
+  padding-right: 10%;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  justify-content: center;
+  align-items: center;
+}
+
+.friend-container {
+  padding: 2% 0 5% 5%;
+  height: 20vh;
+  position: relative;
+  clear: both;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffff;
+  flex-wrap: wrap;
+}
+
+.friend-container:first-child {
+  margin-top: 20px;
+}
+
+.post-container {
+  padding: 5% 10% 1% 10%;
+  position: relative;
+  clear: both;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #ffff;
+  flex-wrap: wrap;
+}
+
+.post-container:first-child {
+  margin-top: 20px;
+}
+
+.user-row {
+  margin: 2rem 2rem 2rem 2rem;
+}
+
+.fb-brand {
+  width: 2.5rem;
+  fill: #ffff;
+}
+
+.profile-img {
+  width: 2.5rem;
+  margin-right: 2rem;
+  border-radius: 50%;
+}
+
+.sidenav-icons {
+  width: 2rem;
+  margin-right: 1rem;
+}
+
+.sidenav-item {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 1.5rem;
+}
+
+.sidenav-text {
+  margin: auto;
+  margin-left: 1rem;
+  cursor: pointer;
+}
+
+.logout {
+  display: flex;
+  flex-direction: row;
+  margin-top: auto;
+}
+
+.logout > a {
+  cursor: pointer;
+  color: red;
+}
+
+.logout {
+  fill: red;
+}
+
+.button-row {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 1rem;
+}
+
+.accept-btn,
+.unblock-btn,
+.add-btn {
+  width: 8rem;
+  height: 3rem;
+  background-color: #ffff;
+  color: #00cd67;
+  border: 1px solid #00cd67;
+  font-size: 1em;
+  font-weight: lighter;
+  border-radius: 90px;
+  text-decoration: none;
+  outline: none;
+  margin-top: 1rem;
+  margin-right: 0.2rem;
+}
+
+.accept-btn:active,
+.unblock-btn:active,
+.add-btn:active {
+  transform: translateY(-5px);
+}
+
+.accept-btn:hover,
+.unblock-btn:hover,
+.add-btn:hover {
+  color: #fff;
+  background-color: #00cd67;
+  font-size: 1em;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 400ms ease-out;
+}
+
+.reject-btn,
+.remove-btn,
+.rm-btn {
+  width: 8rem;
+  height: 3rem;
+  color: #fff;
+  background: #ff4d4d;
+  font-size: 1em;
+  font-weight: lighter;
+  border-radius: 90px;
+  text-decoration: none;
+  outline: none;
+  border: none;
+  margin-top: 1rem;
+  margin-right: 1rem;
+}
+
+.reject-btn:active,
+.remove-btn:active,
+.rm-btn:active {
+  transform: translateY(-5px);
+}
+
+.reject-btn:hover,
+.remove-btn:hover,
+.rm-btn:hover {
+  background-color: #ffff;
+  color: #ff4d4d;
+  font-size: 1em;
+  border: 1px solid #ff4d4d;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 400ms ease-out;
+}
+
+.block-btn {
+  width: 8rem;
+  height: 3rem;
+  background-color: #ffff;
+  color: #ff4d4d;
+  border: 1px solid #ff4d4d;
+  font-size: 1em;
+  font-weight: lighter;
+  border-radius: 90px;
+  text-decoration: none;
+  margin-top: 1rem;
+  margin-right: 0.2rem;
+}
+
+.block-btn:active {
+  transform: translateY(-5px);
+}
+
+.block-btn:hover {
+  background-color: #ff4d4d;
+  color: #ffff;
+  font-size: 1em;
+  border: 1px solid #ffff;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 400ms ease-out;
+}
+
+.fullname {
+  font-size: 1.5rem;
+}
+
+.friend-img {
+  width: 5rem;
+  margin-right: 1rem;
+  border-radius: 50%;
+}
+
+.friend-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.user-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.time-row {
+  position: absolute;
+  padding-top: 2rem;
+  right: 2rem;
+  bottom: 0.2rem;
+}
+
+.image-upload > input {
+  display: none;
+}
