@@ -1,4 +1,4 @@
-module src/github.com/saadbadreddine/fsw-facebook-go-backend
+module github.com/saadbadreddine/fsw-facebook-go-backend
 
 go 1.13
 

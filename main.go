@@ -3,8 +3,13 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"github.com/saadbadreddine/fsw-facebook-go-backend"
+
+	"log"
+
 	"github.com/gorilla/mux"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	"github.com/jinzhu/gorm"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -35,25 +40,55 @@ func newRouter() *mux.Router {
 	return r
 }
 
+
+//Connector variable used for CRUD operation's
+var Connector *gorm.DB
+
+//Connect creates MySQL connection
+func Connect(connectionString string) error {
+	var err error
+	Connector, err = gorm.Open("mysql", connectionString)
+	if err != nil {
+		return err
+	}
+	log.Println("Connection was successful!!")
+	return nil
+}
+//Config to maintain DB configuration properties
+type Config struct {
+	ServerName string
+	User       string
+	Password   string
+	DB         string
+}
+
+var getConnectionString = func(config Config) string {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
+	return connectionString
+}
+
+
+
 func main() {
-	// The router is now formed by calling the `newRouter` constructor function
-	// that we defined above. The rest of the code stays the same
-	r := newRouter()
-	http.ListenAndServe(":8080", r)
 
-
+//Connect creates MySQL connection
 	config :=
-		database.Config{
+		Config{
 			ServerName: "localhost:3306",
-			User:       "root",
-			Password:   "root",
-			DB:         "learning",
+			User:       "debian-sys-maint",
+			Password:   "7LRTlMIJFQQH3tSc",
+			DB:         "facebookdb",
 		}
 
-	connectionString := database.GetConnectionString(config)
-	err := database.Connect(connectionString)
+	connectionString := getConnectionString(config)
+	err := Connect(connectionString)
 	if err != nil {
 		panic(err.Error())
 	}
 
+	
+	// The router is now formed by calling the `newRouter` constructor function
+	// that we defined above. The rest of the code stays the same
+	r := newRouter()
+	http.ListenAndServe(":8080", r)
 }
