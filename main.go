@@ -3,11 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"fsw-facebook-go-backend/database"
-
+	"github.com/saadbadreddine/fsw-facebook-go-backend"
 	"github.com/gorilla/mux"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -44,12 +41,13 @@ func main() {
 	r := newRouter()
 	http.ListenAndServe(":8080", r)
 
-		config :=
+
+	config :=
 		database.Config{
 			ServerName: "localhost:3306",
-			User:       "debian-sys-maint",
-			Password:   "7LRTlMIJFQQH3tSc",
-			DB:         "facebookdb",
+			User:       "root",
+			Password:   "root",
+			DB:         "learning",
 		}
 
 	connectionString := database.GetConnectionString(config)

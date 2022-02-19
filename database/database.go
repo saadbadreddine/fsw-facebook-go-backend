@@ -1,7 +1,7 @@
 package database
 
 import (
-	 import "fmt"
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
