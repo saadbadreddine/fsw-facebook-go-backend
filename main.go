@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,6 +15,35 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
+
+//Config to maintain DB configuration properties
+type Config struct {
+	ServerName string
+	User       string
+	Password   string
+	DB         string
+}
+
+type Credentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginUserResponse struct {
+	Status      string `json:"status"`
+	AccessToken string `json:"token"`
+}
+
+type User struct {
+	ID         int
+	First_Name string
+	Last_Name  string
+	Dob        string
+	Email      string
+	Password   string
+	Timestamp  string
+	Address_ID int
+}
 
 func main() {
 
@@ -37,88 +68,12 @@ func main() {
 	http.ListenAndServe(":8080", r)
 }
 
-type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type LoginUserResponse struct {
-	Status      string `json:"status"`
-	AccessToken string `json:"token"`
-}
-
-type User struct {
-	ID         int
-	First_Name string
-	Last_Name  string
-	Dob        string
-	Email      string
-	Password   string
-	Timestamp  string
-	Address_ID int
-}
-
-func signin(w http.ResponseWriter, r *http.Request) {
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	var str = string(body)
-	var creds Credentials
-	json.Unmarshal([]byte(str), &creds)
-
-	var user User
-
-	Connector.Table("users").Where("email = ? AND password = ?", creds.Email, creds.Password).Select("id").Scan(&user)
-
-	var loginUserResponse LoginUserResponse
-
-	loginUserResponse.AccessToken, err = GenerateJWT(user.ID)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	loginUserResponse.Status = "Logged In"
-	json_response, err := json.Marshal(loginUserResponse)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	w.Write([]byte(json_response))
-}
-
-/*
-	var users []User
-	// Execute the query
-	result, err := Connector.DB().Query("SELECT id FROM users WHERE email = ? AND password = ?")
-	if err != nil {
-		log.Fatal(err)
-	}
-	for result.Next() {
-		var user User
-		err := result.Scan(&user.ID, &user.First_Name, &user.Last_Name, &user.Dob, &user.Email, &user.Password,
-			&user.Timestamp, &user.Address_ID)
-		if err != nil {
-			log.Fatal(err)
-		}
-		users = append(users, user)
-	}*/
-/*json, err := json.Marshal(users)
-
-if err != nil {
-	log.Fatalf("Error occured during marshaling. Error: %s", err.Error())
-}
-w.Write([]byte(json))*/
-
 // The new router function creates the router and
 // returns it to us. We can now use this function
 // to instantiate and test the router outside of the main function
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/signin", signin).Methods("POST")
+	r.HandleFunc("/signin", SignIn).Methods("POST")
 
 	// Declare the static file directory and point it to the
 	// directory we just made
@@ -151,14 +106,6 @@ func Connect(connectionString string) error {
 	return nil
 }
 
-//Config to maintain DB configuration properties
-type Config struct {
-	ServerName string
-	User       string
-	Password   string
-	DB         string
-}
-
 var getConnectionString = func(config Config) string {
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
 	return connectionString
@@ -182,4 +129,52 @@ func GenerateJWT(id int) (string, error) {
 	}
 
 	return tokenString, err
+}
+
+func SignIn(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var str = string(body)
+	var creds Credentials
+	json.Unmarshal([]byte(str), &creds)
+
+	fmt.Println(creds.Password)
+	password_bytes := []byte(creds.Password)
+	hash := sha256.New()
+	hash.Write(password_bytes)
+	hash.Sum(nil)
+	//hashed_password := sha256.Sum256(password_bytes)
+	//fmt.Println(hashed_password)
+	str_hashed_pass := hex.EncodeToString(hash.Sum(nil))
+	fmt.Println(str_hashed_pass)
+	json.Unmarshal([]byte(str), &creds)
+	var user User
+
+	Connector.Table("users").Where("email = ? AND password = ?", creds.Email, str_hashed_pass).Select("id").Scan(&user)
+
+	var loginUserResponse LoginUserResponse
+
+	if user.ID != 0 {
+
+		loginUserResponse.AccessToken, err = GenerateJWT(user.ID)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		loginUserResponse.Status = "Logged in"
+
+	} else {
+		loginUserResponse.Status = "Incorrect combination"
+	}
+
+	json_response, err := json.Marshal(loginUserResponse)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	w.Write([]byte(json_response))
 }

@@ -115,7 +115,7 @@ window.onload = () => {
 
     document.getElementById("logout").addEventListener("click", function () {
       localStorage.clear();
-      location.href = "http://localhost/fsw-facebook-clone-frontend/index.html";
+      location.href = "http://localhost/assets/fsw-facebook-clone-frontend/index.html";
     });
   } else {
     document.body.innerHTML = "";

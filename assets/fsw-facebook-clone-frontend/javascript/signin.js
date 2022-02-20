@@ -1,7 +1,5 @@
-let signin_api = "http://localhost:8080/signin";
-
 const signIn = async (email, password) => {
-    const response = await fetch(signin_api, {
+    const response = await fetch("http://localhost:8080/signin", {
         method: "POST",
         headers: new Headers({
             "Content-Type": "application/json"
