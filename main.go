@@ -1,64 +1,27 @@
 package main
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
-	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/saadbadreddine/fsw-facebook-go-backend/apis"
+	"github.com/saadbadreddine/fsw-facebook-go-backend/database"
+
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-//Config to maintain DB configuration properties
-type Config struct {
-	ServerName string
-	User       string
-	Password   string
-	DB         string
+var getConnectionString = func(config database.Config) string {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
+	return connectionString
 }
-
-type Credentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type LoginUserResponse struct {
-	Status      string `json:"status"`
-	AccessToken string `json:"token"`
-}
-
-type User struct {
-	ID         int
-	First_Name string
-	Last_Name  string
-	Dob        string
-	Email      string
-	Password   string
-	Timestamp  string
-	Address_ID int
-}
-
-//Connector variable used for CRUD operation's
-var Connector *gorm.DB
-
-var mySigningKey = []byte(os.Getenv("MY_JWT_TOKEN"))
-
-//var mySigningKey = []byte("charizard010")
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 func main() {
 	//Connect creates MySQL connection
 	config :=
-		Config{
+		database.Config{
 			ServerName: "localhost:3306",
 			User:       "debian-sys-maint",
 			Password:   "7LRTlMIJFQQH3tSc",
@@ -66,7 +29,7 @@ func main() {
 		}
 
 	connectionString := getConnectionString(config)
-	err := Connect(connectionString)
+	err := database.Connect(connectionString)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -82,7 +45,8 @@ func main() {
 // to instantiate and test the router outside of the main function
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/signin", SignIn).Methods("POST")
+	r.HandleFunc("/signin", apis.SignIn).Methods("POST")
+	r.HandleFunc("/getdata", apis.GetUserData).Methods("POST")
 
 	// Declare the static file directory and point it to the
 	// directory we just made
@@ -99,83 +63,4 @@ func newRouter() *mux.Router {
 	// with "/assets/", instead of the absolute route itself
 	r.PathPrefix("/assets/").Handler(staticFileHandler).Methods("GET")
 	return r
-}
-
-var getConnectionString = func(config Config) string {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
-	return connectionString
-}
-
-//Connect creates MySQL connection
-func Connect(connectionString string) error {
-	var err error
-	Connector, err = gorm.Open("mysql", connectionString)
-	if err != nil {
-		return err
-	}
-	log.Println("Connection was successful!!")
-	return nil
-}
-
-func GenerateJWT(id int) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["authorized"] = true
-	claims["user_id"] = id
-	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
-
-	tokenString, err := token.SignedString(mySigningKey)
-
-	if err != nil {
-		fmt.Errorf("Something went wrong: %s", err.Error())
-		return "", err
-	}
-
-	return tokenString, err
-}
-
-func SignIn(w http.ResponseWriter, r *http.Request) {
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	var str = string(body)
-	var creds Credentials
-	json.Unmarshal([]byte(str), &creds)
-
-	password_bytes := []byte(creds.Password)
-	hash := sha256.New()
-	hash.Write(password_bytes)
-	hash.Sum(nil)
-	//hashed_password := sha256.Sum256(password_bytes)
-	//fmt.Println(hashed_password)
-	str_hashed_pass := hex.EncodeToString(hash.Sum(nil))
-	json.Unmarshal([]byte(str), &creds)
-	var user User
-
-	Connector.Table("users").Where("email = ? AND password = ?", creds.Email, str_hashed_pass).Select("id").Scan(&user)
-
-	var loginUserResponse LoginUserResponse
-
-	if user.ID != 0 {
-
-		loginUserResponse.AccessToken, err = GenerateJWT(user.ID)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		loginUserResponse.Status = "Logged in"
-
-	} else {
-		loginUserResponse.Status = "Incorrect combination"
-	}
-
-	json_response, err := json.Marshal(loginUserResponse)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	w.Write([]byte(json_response))
 }
