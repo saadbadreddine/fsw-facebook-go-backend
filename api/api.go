@@ -67,9 +67,9 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	var str = string(body)
+	//var str = string(body)
 	var creds Credentials
-	json.Unmarshal([]byte(str), &creds)
+	json.Unmarshal(body, &creds)
 
 	password_bytes := []byte(creds.Password)
 	hash := sha256.New()
@@ -78,7 +78,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	//hashed_password := sha256.Sum256(password_bytes)
 	//fmt.Println(hashed_password)
 	str_hashed_pass := hex.EncodeToString(hash.Sum(nil))
-	json.Unmarshal([]byte(str), &creds)
 	var user User
 
 	database.Connector.Table("users").Where("email = ? AND password = ?", creds.Email, str_hashed_pass).Select("id").Scan(&user)
@@ -113,9 +112,9 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	var str = string(body)
+	//var str = string(body)
 	var auth_token AuthorizationToken
-	json.Unmarshal([]byte(str), &auth_token)
+	json.Unmarshal(body, &auth_token)
 
 	//fmt.Println(reflect.TypeOf(auth_token.Token))
 	claims := jwt.MapClaims{}
@@ -128,15 +127,17 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(claims)
 
-	var user_id = claims["user_id"]
-	fmt.Println(user_id)
+	//var user_id = claims["user_id"]
+	//fmt.Println(user_id)
+
+	//database.Connector.Table("users").Joins("addresses")
 
 	json_response, err := json.Marshal(auth_token)
 
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
+
 	w.Write([]byte(json_response))
 
 }
