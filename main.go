@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -45,8 +46,16 @@ type User struct {
 	Address_ID int
 }
 
-func main() {
+//Connector variable used for CRUD operation's
+var Connector *gorm.DB
 
+var mySigningKey = []byte(os.Getenv("MY_JWT_TOKEN"))
+
+//var mySigningKey = []byte("charizard010")
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+func main() {
 	//Connect creates MySQL connection
 	config :=
 		Config{
@@ -92,8 +101,10 @@ func newRouter() *mux.Router {
 	return r
 }
 
-//Connector variable used for CRUD operation's
-var Connector *gorm.DB
+var getConnectionString = func(config Config) string {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
+	return connectionString
+}
 
 //Connect creates MySQL connection
 func Connect(connectionString string) error {
@@ -105,14 +116,6 @@ func Connect(connectionString string) error {
 	log.Println("Connection was successful!!")
 	return nil
 }
-
-var getConnectionString = func(config Config) string {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
-	return connectionString
-}
-
-//var mySigningKey = os.Get("MY_JWT_TOKEN")
-var mySigningKey = []byte("charizard010")
 
 func GenerateJWT(id int) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
