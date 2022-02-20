@@ -145,7 +145,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	var creds Credentials
 	json.Unmarshal([]byte(str), &creds)
 
-	fmt.Println(creds.Password)
 	password_bytes := []byte(creds.Password)
 	hash := sha256.New()
 	hash.Write(password_bytes)
@@ -153,7 +152,6 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 	//hashed_password := sha256.Sum256(password_bytes)
 	//fmt.Println(hashed_password)
 	str_hashed_pass := hex.EncodeToString(hash.Sum(nil))
-	fmt.Println(str_hashed_pass)
 	json.Unmarshal([]byte(str), &creds)
 	var user User
 

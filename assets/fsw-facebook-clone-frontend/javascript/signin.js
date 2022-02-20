@@ -10,7 +10,7 @@ const signIn = async (email, password) => {
         })
     });
     const json_object = await response.json();
-    if (json_object.status == "Logged In"){
+    if (json_object.status == "Logged in"){
         token = json_object.token;
         localStorage.setItem("token", token);
         location.href = "http://localhost:8080/assets/fsw-facebook-clone-frontend/home.html";
