@@ -119,6 +119,6 @@ window.onload = () => {
     });
   } else {
     document.body.innerHTML = "";
-    document.body.style.backgroundColor = "black";
+    document.body.style.backgroundColor = "steelblue";
   }
 };

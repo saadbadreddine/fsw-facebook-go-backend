@@ -1,4 +1,4 @@
-package apis
+package api
 
 import (
 	"crypto/sha256"
@@ -39,7 +39,7 @@ type User struct {
 	Address_ID int
 }
 
-var mySigningKey = []byte(os.Getenv("MY_JWT_TOKEN"))
+var mySecretKey = []byte(os.Getenv("MY_JWT_TOKEN"))
 
 //var mySigningKey = []byte("charizard010")
 
@@ -50,10 +50,10 @@ func GenerateJWT(id int) (string, error) {
 	claims["user_id"] = id
 	claims["exp"] = time.Now().Add(time.Minute * 30).Unix()
 
-	tokenString, err := token.SignedString(mySigningKey)
+	tokenString, err := token.SignedString(mySecretKey)
 
 	if err != nil {
-		fmt.Errorf("Something went wrong: %s", err.Error())
+		fmt.Printf("Something went wrong: %s", err.Error())
 		return "", err
 	}
 
@@ -117,7 +117,22 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 	var auth_token AuthorizationToken
 	json.Unmarshal([]byte(str), &auth_token)
 
+	//fmt.Println(reflect.TypeOf(auth_token.Token))
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(auth_token.Token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(claims)
+
+	var user_id = claims["user_id"]
+	fmt.Println(user_id)
+
 	json_response, err := json.Marshal(auth_token)
+
 	if err != nil {
 		fmt.Println(err)
 		return

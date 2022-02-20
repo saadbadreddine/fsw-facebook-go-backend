@@ -1,24 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/saadbadreddine/fsw-facebook-go-backend/apis"
+	"github.com/saadbadreddine/fsw-facebook-go-backend/api"
 	"github.com/saadbadreddine/fsw-facebook-go-backend/database"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-var getConnectionString = func(config database.Config) string {
-	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
-	return connectionString
-}
-
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 func main() {
+
 	//Connect creates MySQL connection
 	config :=
 		database.Config{
@@ -28,7 +21,7 @@ func main() {
 			DB:         "facebookdb",
 		}
 
-	connectionString := getConnectionString(config)
+	connectionString := database.GetConnectionString(config)
 	err := database.Connect(connectionString)
 	if err != nil {
 		panic(err.Error())
@@ -45,8 +38,8 @@ func main() {
 // to instantiate and test the router outside of the main function
 func newRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/signin", apis.SignIn).Methods("POST")
-	r.HandleFunc("/getdata", apis.GetUserData).Methods("POST")
+	r.HandleFunc("/signin", api.SignIn).Methods("POST")
+	r.HandleFunc("/getdata", api.GetUserData).Methods("POST")
 
 	// Declare the static file directory and point it to the
 	// directory we just made

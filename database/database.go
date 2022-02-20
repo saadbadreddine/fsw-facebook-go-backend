@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -15,6 +16,11 @@ type Config struct {
 
 //Connector variable used for CRUD operation's
 var Connector *gorm.DB
+
+func GetConnectionString(config Config) string {
+	connectionString := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&collation=utf8mb4_unicode_ci&parseTime=true&multiStatements=true", config.User, config.Password, config.ServerName, config.DB)
+	return connectionString
+}
 
 //Connect creates MySQL connection
 func Connect(connectionString string) error {
