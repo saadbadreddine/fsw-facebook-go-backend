@@ -230,22 +230,22 @@ const getPosts = async (sender) => {
   return data;
 };
 
-const getData = async (sender) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/getuserdata_api.php", {
+const getData = async (token) => {
+  const response = await fetch("http://localhost:8080/getdata", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
     }),
     body: JSON.stringify({
-      sender: sender,
+      token: token,
     }),
   });
   const json_object = await response.json();
-  if (json_object.status == "User not found") {
-    console.log(json_object.status);
-  } else {
-    return json_object;
-  }
+  //if (json_object.status == "User not found") {
+  //  console.log(json_object.status);
+  //} else {
+  return json_object;
+  //}
 };
 const searchUsers = async (sender, name) => {
   const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/searchforusers_api.php", {

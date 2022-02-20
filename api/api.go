@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -127,12 +128,30 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println(claims)
 
-	//var user_id = claims["user_id"]
-	//fmt.Println(user_id)
+	var user_id = claims["user_id"]
+	stmt, err := database.Connector.DB().Prepare("SELECT first_name, last_name FROM users JOIN addresses ON  users.address_id = addresses.address_id WHERE id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	//var user User
+	fmt.Println(user_id)
 
-	//database.Connector.Table("users").Joins("addresses")
+	result, err := stmt.Query(user_id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var users []User
+	//result.Scan(&user.First_Name, &user.Last_Name)
+	for result.Next() {
+		var user User
+		err := result.Scan(&user.First_Name, &user.Last_Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		users = append(users, user)
+	}
 
-	json_response, err := json.Marshal(auth_token)
+	json_response, err := json.Marshal(users[0])
 
 	if err != nil {
 		fmt.Println(err)
