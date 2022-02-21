@@ -46,6 +46,10 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/getblockedusers", api.GetBlockedUsers).Methods("POST")
 	r.HandleFunc("/acceptfriendrequest", api.AcceptFriendRequest).Methods("POST")
 	r.HandleFunc("/rejectfriendrequest", api.RejectFriendRequest).Methods("POST")
+	r.HandleFunc("/blockfriend", api.BlockFriend).Methods("POST")
+	r.HandleFunc("/unblockfriend", api.UnblockFriend).Methods("POST")
+	r.HandleFunc("/removefriend", api.RemoveFriend).Methods("POST")
+	r.HandleFunc("/removefriend", api.AddFriend).Methods("POST")
 
 	// Declare the static file directory and point it to the
 	// directory we just made

@@ -1,5 +1,5 @@
 const addFriend = async (sender, receiver) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/addfriend_api.php", {
+  const response = await fetch("http://localhost:8080/addfriend", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
@@ -14,7 +14,7 @@ const addFriend = async (sender, receiver) => {
 };
 
 const removeFriend = async (sender, receiver) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/removefriend_api.php", {
+  const response = await fetch("http://localhost:8080/removefriend", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
@@ -29,7 +29,7 @@ const removeFriend = async (sender, receiver) => {
 };
 
 const blockFriend = async (sender, receiver) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/blockfriend_api.php", {
+  const response = await fetch("http://localhost:8080/blockfriend", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
@@ -44,7 +44,7 @@ const blockFriend = async (sender, receiver) => {
 };
 
 const unblockFriend = async (sender, receiver) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/unblockfriend_api.php", {
+  const response = await fetch("http://localhost:8080/unblockfriend", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
