@@ -34,7 +34,6 @@ func TestStaticFileServer(t *testing.T) {
 }
 
 /*
-
 func TestRouter(t *testing.T) {
 	// Instantiate the router using the constructor function that
 	// we defined previously
@@ -153,5 +152,4 @@ func TestHandler(t *testing.T) {
 		t.Errorf("handler returned unexpected body: got %v want %v", actual, expected)
 	}
 }
-
 */
