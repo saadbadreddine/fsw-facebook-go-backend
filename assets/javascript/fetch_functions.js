@@ -74,7 +74,7 @@ const acceptRequest = async (sender, receiver) => {
 };
 
 const rejectRequest = async (sender, receiver) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/rejectrequest_api.php", {
+  const response = await fetch("http://localhost:8080/rejectfriendrequests", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",

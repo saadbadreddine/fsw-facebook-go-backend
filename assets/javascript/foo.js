@@ -6,7 +6,7 @@ window.onload = () => {
   });*/
   if (localStorage.getItem("token") !== null) {
     getData(localStorage.getItem("token")).then((data) => {
-      getPosts(localStorage.getItem("token"));
+      getFriends(localStorage.getItem("token"));
       //console.log(typeof data);
       first_name = data.First_Name.charAt(0).toUpperCase() + data.First_Name.slice(1).toLowerCase();
       last_name = data.Last_Name.charAt(0).toUpperCase() + data.Last_Name.slice(1).toLowerCase();

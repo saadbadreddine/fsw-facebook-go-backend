@@ -438,3 +438,49 @@ func AcceptFriendRequest(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(json_response))
 
 }
+
+func RejectFriendRequest(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var action Action
+	json.Unmarshal(body, &action)
+
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(action.Sender, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var user_id = claims["user_id"]
+
+	var action_response ActionResponse
+
+	stmt, err := database.Connector.DB().Prepare(`DELETE FROM friendships WHERE sender = ? AND receiver = ?`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt.Query(action.Receiver, user_id)
+	if err != nil {
+		action_response.Status = "Failed"
+		fmt.Println(err)
+	}
+
+	stmt.Close()
+	action_response.Status = "Success"
+	json_response, err := json.Marshal(action_response)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte(json_response))
+
+}
