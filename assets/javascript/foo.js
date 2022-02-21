@@ -8,8 +8,8 @@ window.onload = () => {
     getData(localStorage.getItem("token")).then((data) => {
       getFriends(localStorage.getItem("token"));
       //console.log(typeof data);
-      first_name = data.First_Name.charAt(0).toUpperCase() + data.First_Name.slice(1).toLowerCase();
-      last_name = data.Last_Name.charAt(0).toUpperCase() + data.Last_Name.slice(1).toLowerCase();
+      first_name = data.first_name.charAt(0).toUpperCase() + data.first_name.slice(1).toLowerCase();
+      last_name = data.last_name.charAt(0).toUpperCase() + data.last_name.slice(1).toLowerCase();
       fullname = `${first_name} ${last_name}`;
       //document.getElementById("profile-picture").src = data.picture;
       document.getElementById("my-name").innerText = fullname;
