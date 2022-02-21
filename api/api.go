@@ -130,8 +130,6 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	fmt.Println(claims)
-
 	var user_id = claims["user_id"]
 	stmt, err := database.Connector.DB().Prepare(`SELECT first_name, last_name FROM users 
 	JOIN addresses ON  users.address_id = addresses.address_id WHERE id = ?`)
@@ -153,6 +151,8 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 		}
 		users = append(users, user)
 	}
+
+	stmt.Close()
 
 	json_response, err := json.Marshal(users[0])
 
@@ -182,8 +182,6 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	fmt.Println(claims)
-
 	var user_id = claims["user_id"]
 	stmt, err := database.Connector.DB().Prepare(`SELECT DISTINCT posts.post, posts.timestamp, posts.user_id, users.first_name, users.last_name 
 	FROM posts JOIN users ON posts.user_id = users.id JOIN friendships ON (posts.user_id = friendships.sender OR posts.user_id = friendships.receiver) 
@@ -208,6 +206,8 @@ func GetPosts(w http.ResponseWriter, r *http.Request) {
 		}
 		posts = append(posts, post)
 	}
+
+	stmt.Close()
 
 	json_response, err := json.Marshal(posts)
 
@@ -237,8 +237,6 @@ func GetFriends(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	fmt.Println(claims)
-
 	var user_id = claims["user_id"]
 
 	stmt, err := database.Connector.DB().Prepare(`SELECT Distinct id, first_name, last_name 
@@ -265,6 +263,8 @@ func GetFriends(w http.ResponseWriter, r *http.Request) {
 		}
 		users = append(users, user)
 	}
+
+	stmt.Close()
 
 	json_response, err := json.Marshal(users)
 
@@ -294,8 +294,6 @@ func GetFriendRequests(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	fmt.Println(claims)
-
 	var user_id = claims["user_id"]
 
 	stmt, err := database.Connector.DB().Prepare(`SELECT id, first_name, last_name 
@@ -319,6 +317,61 @@ func GetFriendRequests(w http.ResponseWriter, r *http.Request) {
 		}
 		users = append(users, user)
 	}
+
+	stmt.Close()
+
+	json_response, err := json.Marshal(users)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte(json_response))
+
+}
+
+func GetBlockedUsers(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var auth_token AuthorizationToken
+	json.Unmarshal(body, &auth_token)
+
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(auth_token.Token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var user_id = claims["user_id"]
+
+	stmt, err := database.Connector.DB().Prepare(`SELECT id, first_name, last_name 
+	FROM users INNER JOIN blocks ON users.id = blocks.receiver WHERE blocks.sender = ?`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := stmt.Query(user_id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var users []User
+	for result.Next() {
+		var user User
+		err := result.Scan(&user.ID, &user.First_Name, &user.Last_Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		users = append(users, user)
+	}
+
+	stmt.Close()
 
 	json_response, err := json.Marshal(users)
 

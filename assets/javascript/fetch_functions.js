@@ -151,14 +151,14 @@ const getFriends = async (token) => {
   return data;
 };
 
-const getblockedUsers = async (sender) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/getblockedusers_api.php", {
+const getblockedUsers = async (token) => {
+  const response = await fetch("http://localhost:8080/getblockedusers", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
     }),
     body: JSON.stringify({
-      sender: sender,
+      token: token,
     }),
   });
 
@@ -171,7 +171,7 @@ const getblockedUsers = async (sender) => {
     document.getElementById("column-two").innerHTML += `
             <div class="friend-container" id="${element.id}">
                 <div class="friend-row">
-                    <img class="friend-img" src=${element.picture}>
+                    <img class="friend-img" src="">
                     <span class="fullname" id="full-name">${fullname}</span>
                 </div>
                 <div class="button-row">
@@ -210,7 +210,7 @@ const getPosts = async (token) => {
                 <div class="post-row">
                     <span class="post-text" id="post">${post}</span>
                 
-                 <div class="time-row">${element.timestamp}</div>`;
+                 <div class="time-row"></div>`;
   });
   return data;
 };
