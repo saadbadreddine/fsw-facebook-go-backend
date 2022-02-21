@@ -10,29 +10,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-func main() {
-
-	//Connect creates MySQL connection
-	config :=
-		database.Config{
-			ServerName: "localhost:3306",
-			User:       "debian-sys-maint",
-			Password:   "7LRTlMIJFQQH3tSc",
-			DB:         "facebookdb",
-		}
-
-	connectionString := database.GetConnectionString(config)
-	err := database.Connect(connectionString)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// The router is now formed by calling the `newRouter` constructor function
-	// that we defined above. The rest of the code stays the same
-	r := newRouter()
-	http.ListenAndServe(":8080", r)
-}
-
 // The new router function creates the router and
 // returns it to us. We can now use this function
 // to instantiate and test the router outside of the main function
@@ -51,8 +28,7 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/removefriend", api.RemoveFriend).Methods("POST")
 	r.HandleFunc("/addfriend", api.AddFriend).Methods("POST")
 
-	// Declare the static file directory and point it to the
-	// directory we just made
+	// Declare the static file directory and point it to the assets folder
 	staticFileDirectory := http.Dir("./assets/")
 	// Declare the handler, that routes requests to their respective filename.
 	// The fileserver is wrapped in the `stripPrefix` method, because we want to
@@ -66,4 +42,27 @@ func newRouter() *mux.Router {
 	// with "/assets/", instead of the absolute route itself
 	r.PathPrefix("/assets/").Handler(staticFileHandler).Methods("GET")
 	return r
+}
+
+func main() {
+
+	//Connect creates MySQL connection
+	config :=
+		database.Config{
+			ServerName: "localhost:3306",
+			User:       "debian-sys-maint",
+			Password:   "7LRTlMIJFQQH3tSc",
+			DB:         "facebookdb",
+		}
+
+	connectionString := database.GetConnectionString(config)
+	err := database.Connect(connectionString)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// The router is now formed by calling the `newRouter` constructor function
+	// that we defined above.
+	r := newRouter()
+	http.ListenAndServe(":8080", r)
 }
