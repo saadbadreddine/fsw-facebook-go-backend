@@ -48,6 +48,15 @@ type Post struct {
 	User_ID    string `json:"user_id"`
 }
 
+type Action struct {
+	Sender   string `json:"sender"`
+	Receiver string `json:"receiver"`
+}
+
+type ActionResponse struct {
+	Status string `json:"status"`
+}
+
 var mySecretKey = []byte(os.Getenv("MY_JWT_TOKEN"))
 
 //var mySigningKey = []byte("charizard010")
@@ -374,6 +383,53 @@ func GetBlockedUsers(w http.ResponseWriter, r *http.Request) {
 	stmt.Close()
 
 	json_response, err := json.Marshal(users)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte(json_response))
+
+}
+
+func AcceptFriendRequest(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var action Action
+	json.Unmarshal(body, &action)
+
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(action.Sender, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	var user_id = claims["user_id"]
+
+	accepted := true
+	var action_response ActionResponse
+
+	stmt, err := database.Connector.DB().Prepare(`UPDATE friendships SET accepted = ? WHERE sender = ? AND receiver = ?`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt.Query(accepted, action.Receiver, user_id)
+	if err != nil {
+		action_response.Status = "Failed"
+		fmt.Println(err)
+	}
+
+	stmt.Close()
+	action_response.Status = "Success"
+	json_response, err := json.Marshal(action_response)
 
 	if err != nil {
 		fmt.Println(err)

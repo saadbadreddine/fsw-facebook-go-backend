@@ -59,7 +59,7 @@ const unblockFriend = async (sender, receiver) => {
 };
 
 const acceptRequest = async (sender, receiver) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/acceptfriend_api.php", {
+  const response = await fetch("http://localhost:8080/acceptfriendrequest", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
