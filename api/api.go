@@ -30,14 +30,22 @@ type AuthorizationToken struct {
 }
 
 type User struct {
-	ID         int
-	First_Name string
-	Last_Name  string
-	Dob        string
-	Email      string
-	Password   string
-	Timestamp  string
-	Address_ID int
+	ID         int    `json:"id"`
+	First_Name string `json:"first_name"`
+	Last_Name  string `json:"last_name"`
+	Dob        string `json:"dob"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	Timestamp  string `json:"timestamp"`
+	Address_ID int    `json:"address_id"`
+}
+
+type Post struct {
+	First_Name string `json:"first_name"`
+	Last_Name  string `json:"last_name"`
+	Post       string `json:"post"`
+	Timestamp  string `json:"timestamp"`
+	User_ID    string `json:"user_id"`
 }
 
 var mySecretKey = []byte(os.Getenv("MY_JWT_TOKEN"))
@@ -68,16 +76,14 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	//var str = string(body)
 	var creds Credentials
 	json.Unmarshal(body, &creds)
-
+	//fmt.Println(reflect.TypeOf(creds.Password))
 	password_bytes := []byte(creds.Password)
 	hash := sha256.New()
 	hash.Write(password_bytes)
 	hash.Sum(nil)
-	//hashed_password := sha256.Sum256(password_bytes)
-	//fmt.Println(hashed_password)
+
 	str_hashed_pass := hex.EncodeToString(hash.Sum(nil))
 	var user User
 
@@ -113,11 +119,9 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	//var str = string(body)
 	var auth_token AuthorizationToken
 	json.Unmarshal(body, &auth_token)
 
-	//fmt.Println(reflect.TypeOf(auth_token.Token))
 	claims := jwt.MapClaims{}
 	jwt.ParseWithClaims(auth_token.Token, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(mySecretKey), nil
@@ -129,19 +133,18 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(claims)
 
 	var user_id = claims["user_id"]
-	stmt, err := database.Connector.DB().Prepare("SELECT first_name, last_name FROM users JOIN addresses ON  users.address_id = addresses.address_id WHERE id = ?")
+	stmt, err := database.Connector.DB().Prepare(`SELECT first_name, last_name FROM users 
+	JOIN addresses ON  users.address_id = addresses.address_id WHERE id = ?`)
 	if err != nil {
 		log.Fatal(err)
 	}
-	//var user User
-	fmt.Println(user_id)
 
 	result, err := stmt.Query(user_id)
 	if err != nil {
 		fmt.Println(err)
 	}
 	var users []User
-	//result.Scan(&user.First_Name, &user.Last_Name)
+
 	for result.Next() {
 		var user User
 		err := result.Scan(&user.First_Name, &user.Last_Name)
@@ -152,6 +155,172 @@ func GetUserData(w http.ResponseWriter, r *http.Request) {
 	}
 
 	json_response, err := json.Marshal(users[0])
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte(json_response))
+
+}
+
+func GetPosts(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var auth_token AuthorizationToken
+	json.Unmarshal(body, &auth_token)
+
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(auth_token.Token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(claims)
+
+	var user_id = claims["user_id"]
+	stmt, err := database.Connector.DB().Prepare(`SELECT DISTINCT posts.post, posts.timestamp, posts.user_id, users.first_name, users.last_name 
+	FROM posts JOIN users ON posts.user_id = users.id JOIN friendships ON (posts.user_id = friendships.sender OR posts.user_id = friendships.receiver) 
+	WHERE(friendships.sender = ? OR friendships.receiver = ?) AND friendships.accepted = 1 AND users.id NOT IN (SELECT blocks.receiver FROM blocks WHERE blocks.receiver = ? OR blocks.sender = ?) 
+	ORDER BY timestamp DESC;`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := stmt.Query(user_id, user_id, user_id, user_id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var posts []Post
+	//result.Scan(&user.First_Name, &user.Last_Name)
+	for result.Next() {
+		var post Post
+		err := result.Scan(&post.Post, &post.Timestamp, &post.User_ID, &post.First_Name, &post.Last_Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		posts = append(posts, post)
+	}
+
+	json_response, err := json.Marshal(posts)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte(json_response))
+
+}
+
+func GetFriends(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var auth_token AuthorizationToken
+	json.Unmarshal(body, &auth_token)
+
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(auth_token.Token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(claims)
+
+	var user_id = claims["user_id"]
+
+	stmt, err := database.Connector.DB().Prepare(`SELECT Distinct id, first_name, last_name 
+	FROM users INNER JOIN friendships ON users.id = friendships.sender OR users.id = friendships.receiver 
+	LEFT JOIN blocks ON  users.id = blocks.receiver OR users.id = blocks.sender 
+	WHERE (friendships.sender = ? OR friendships.receiver = ?) AND friendships.accepted = 1 AND id != ? 
+	AND id NOT IN (SELECT blocks.sender FROM blocks WHERE blocks.receiver = ?) 
+	AND id NOT IN (SELECT blocks.receiver FROM blocks WHERE blocks.sender = ?)`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := stmt.Query(user_id, user_id, user_id, user_id, user_id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var users []User
+	for result.Next() {
+		var user User
+		err := result.Scan(&user.ID, &user.First_Name, &user.Last_Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		users = append(users, user)
+	}
+
+	json_response, err := json.Marshal(users)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte(json_response))
+
+}
+
+func GetFriendRequests(w http.ResponseWriter, r *http.Request) {
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var auth_token AuthorizationToken
+	json.Unmarshal(body, &auth_token)
+
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(auth_token.Token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(mySecretKey), nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(claims)
+
+	var user_id = claims["user_id"]
+
+	stmt, err := database.Connector.DB().Prepare(`SELECT id, first_name, last_name 
+	FROM users INNER JOIN friendships ON users.id = friendships.sender OR users.id = friendships.receiver 
+	WHERE friendships.receiver = ? AND friendships.accepted = 0 AND id != ?`)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	result, err := stmt.Query(user_id, user_id)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var users []User
+	for result.Next() {
+		var user User
+		err := result.Scan(&user.ID, &user.First_Name, &user.Last_Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		users = append(users, user)
+	}
+
+	json_response, err := json.Marshal(users)
 
 	if err != nil {
 		fmt.Println(err)

@@ -40,6 +40,9 @@ func newRouter() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/signin", api.SignIn).Methods("POST")
 	r.HandleFunc("/getdata", api.GetUserData).Methods("POST")
+	r.HandleFunc("/getposts", api.GetPosts).Methods("POST")
+	r.HandleFunc("/getfriends", api.GetFriends).Methods("POST")
+	r.HandleFunc("/getfriendrequests", api.GetFriendRequests).Methods("POST")
 
 	// Declare the static file directory and point it to the
 	// directory we just made
