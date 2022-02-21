@@ -1,18 +1,3 @@
-const signIn = async (email, password) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/signin_api.php", {
-    method: "POST",
-    headers: new Headers({
-      "Content-Type": "application/json",
-    }),
-    body: JSON.stringify({
-      email: email,
-      password: password,
-    }),
-  });
-  const token = await response.json();
-  return token;
-};
-
 const addFriend = async (sender, receiver) => {
   const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/addfriend_api.php", {
     method: "POST",
@@ -103,14 +88,14 @@ const rejectRequest = async (sender, receiver) => {
   return data;
 };
 
-const getfriendRequests = async (sender) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/getfriendrequests_api.php", {
+const getfriendRequests = async (token) => {
+  const response = await fetch("http://localhost:8080/getfriendrequests", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
     }),
     body: JSON.stringify({
-      sender: sender,
+      token: token,
     }),
   });
   const data = await response.json();
@@ -122,7 +107,7 @@ const getfriendRequests = async (sender) => {
     document.getElementById("column-two").innerHTML += `
             <div class="friend-container" id="${element.id}">
                 <div class="friend-row">
-                    <img class="friend-img" src=${element.picture}>
+                    <img class="friend-img" src="">
                     <span class="fullname" id="full-name">${fullname}</span>
                 </div>
                 <div class="button-row">
@@ -134,14 +119,14 @@ const getfriendRequests = async (sender) => {
   return data;
 };
 
-const getFriends = async (sender) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/getfriends_api.php", {
+const getFriends = async (token) => {
+  const response = await fetch("http://localhost:8080/getfriends", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
     }),
     body: JSON.stringify({
-      sender: sender,
+      token: token,
     }),
   });
   const data = await response.json();
@@ -154,7 +139,7 @@ const getFriends = async (sender) => {
     document.getElementById("column-two").innerHTML += `
             <div class="friend-container" id="${element.id}">
                 <div class="friend-row">
-                    <img class="friend-img" src=${element.picture}>
+                    <img class="friend-img" src="">
                     <span class="fullname" id="full-name">${fullname}</span>
                 </div>
                 <div class="button-row">
@@ -197,14 +182,14 @@ const getblockedUsers = async (sender) => {
   return data;
 };
 
-const getPosts = async (sender) => {
-  const response = await fetch("http://localhost/fsw-facebook-clone-backend/php/getposts_api.php", {
+const getPosts = async (token) => {
+  const response = await fetch("http://localhost:8080/getposts", {
     method: "POST",
     headers: new Headers({
       "Content-Type": "application/json",
     }),
     body: JSON.stringify({
-      sender: sender,
+      token: token,
     }),
   });
 
@@ -219,7 +204,7 @@ const getPosts = async (sender) => {
     document.getElementById("column-two").innerHTML += `
             <div class="post-container">
               <div class="user-row">
-                    <img class="friend-img" src=${element.picture}>
+                    <img class="friend-img" src="">
                     <span class="fullname" id="full-name">${fullname}</span>
                 </div>
                 <div class="post-row">
