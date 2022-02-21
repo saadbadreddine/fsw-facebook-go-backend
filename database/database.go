@@ -13,7 +13,7 @@ type Config struct {
 	Password   string
 	DB         string
 }
-
+//
 //Connector variable used for CRUD operation's
 var Connector *gorm.DB
 
