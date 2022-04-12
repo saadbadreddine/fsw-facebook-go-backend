@@ -1,11 +1,6 @@
 package main
 
-import (
-	"net/http"
-	"net/http/httptest"
-	"testing"
-)
-
+/*
 func TestStaticFileServer(t *testing.T) {
 	r := newRouter()
 	mockServer := httptest.NewServer(r)
@@ -33,7 +28,7 @@ func TestStaticFileServer(t *testing.T) {
 
 }
 
-/*
+
 func TestRouter(t *testing.T) {
 	// Instantiate the router using the constructor function that
 	// we defined previously
